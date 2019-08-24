@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DustLore", "DustLore\DustLore.csproj", "{5243222B-2C1C-42A7-9047-FF694E8A2543}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDarrayLib", "NDarrayLib\NDarrayLib.csproj", "{82BDDB14-E284-4C36-8514-8053BD027EAF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5243222B-2C1C-42A7-9047-FF694E8A2543}.Debug|x86.ActiveCfg = Debug|x86
+		{5243222B-2C1C-42A7-9047-FF694E8A2543}.Debug|x86.Build.0 = Debug|x86
+		{5243222B-2C1C-42A7-9047-FF694E8A2543}.Release|x86.ActiveCfg = Release|x86
+		{5243222B-2C1C-42A7-9047-FF694E8A2543}.Release|x86.Build.0 = Release|x86
+		{82BDDB14-E284-4C36-8514-8053BD027EAF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{82BDDB14-E284-4C36-8514-8053BD027EAF}.Debug|x86.Build.0 = Debug|Any CPU
+		{82BDDB14-E284-4C36-8514-8053BD027EAF}.Release|x86.ActiveCfg = Release|Any CPU
+		{82BDDB14-E284-4C36-8514-8053BD027EAF}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
