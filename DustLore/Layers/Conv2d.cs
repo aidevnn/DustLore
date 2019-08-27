@@ -22,6 +22,8 @@ namespace DustLore.Layers
             this.inputShape = inputShape;
             this.padding = padding;
             this.strides = strides;
+
+            InputShape = new int[] { inputShape.Item1, inputShape.Item2, inputShape.Item3 };
         }
 
         readonly int nfilters, strides;
@@ -33,7 +35,7 @@ namespace DustLore.Layers
 
         public string Name => "Conv2D";
 
-        public int Params => throw new NotImplementedException();
+        public int Params => weight.Count + biases.Count;
 
         public bool IsTraining { get; set; }
         public int[] InputShape { get; set; }
@@ -69,7 +71,8 @@ namespace DustLore.Layers
             for (int i = 0; i < wCol.Count; ++i)
                 wCol.Data[i] = weight.Data[i];
 
-            var output = ND.GemmABC(wCol, xCol, biases);
+            var output = ND.GemmABC(wCol, xCol);
+            output = ND.AddNDarray(output, biases);
             output.ReshapeInplace(OutputShape[0], OutputShape[1], OutputShape[2], batchSize);
             return output.Transpose(3, 0, 1, 2);
         }

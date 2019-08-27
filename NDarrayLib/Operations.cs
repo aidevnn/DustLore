@@ -37,6 +37,7 @@ namespace NDarrayLib
 
         public U Clamp(U x, double min, double max) => Max(Cast(min), Min(x, Cast(max)));
         public U Cast<V>(V x) => (U)Convert.ChangeType(x, typeof(U));
+        public V Cast<V>(U x) => (V)Convert.ChangeType(x, typeof(V));
     }
 
     public class OpsInt : Operations<int>

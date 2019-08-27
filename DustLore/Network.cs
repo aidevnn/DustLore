@@ -72,7 +72,7 @@ namespace DustLore
             return (vloss, vacc);
         }
 
-        public void Summary()
+        public void Summary(bool shape = false)
         {
             Console.WriteLine("Summary");
             Console.WriteLine($"Network: {optimizer.Name} / {loss.Name} / {accuracy.Name}");
@@ -80,7 +80,11 @@ namespace DustLore
             int tot = 0;
             foreach (var layer in layers)
             {
-                Console.WriteLine($"Layer: {layer.Name,-20} Parameters: {layer.Params,5} Nodes[In:{Utils.ArrMul(layer.InputShape),4} -> Out:{Utils.ArrMul(layer.OutputShape),4}]");
+                string shin = shape ? $"({layer.InputShape.Glue()})" : $"{Utils.ArrMul(layer.InputShape),5}";
+                shin = shape ? $"{shin,10}" : shin;
+                string shout = shape ? $"({layer.OutputShape.Glue()})" : $"{Utils.ArrMul(layer.OutputShape),5}";
+                shout = shape ? $"{shout,10}" : shout;
+                Console.WriteLine($"Layer: {layer.Name,-20} Parameters: {layer.Params,7} Nodes[In:{shin} -> Out:{shout}]");
                 tot += layer.Params;
             }
 
@@ -93,12 +97,12 @@ namespace DustLore
         {
             var sw = Stopwatch.StartNew();
 
-            for(int k = 0; k <= epochs; ++k)
+            for (int k = 0; k <= epochs; ++k)
             {
                 List<double> losses = new List<double>();
                 List<double> accs = new List<double>();
                 var batch = ND.BatchIterator(trainX, trainY, batchSize, shuffle);
-                foreach ((var X,var y) in batch)
+                foreach ((var X, var y) in batch)
                 {
                     (double vloss, double vacc) = TrainOnBatch(X, y);
                     losses.Add(vloss);
@@ -106,7 +110,32 @@ namespace DustLore
                 }
 
                 if (k % displayEpochs == 0)
-                    Console.WriteLine($"Epoch: {k,4}/{epochs}. loss:{losses.Average():0.000000} acc:{accs.Average():0.0000}");
+                    Console.WriteLine($"Epoch: {k,4}/{epochs}. loss:{losses.Average():0.000000} acc:{accs.Average():0.0000} Time:{sw.ElapsedMilliseconds,10} ms");
+            }
+            Console.WriteLine($"Time:{sw.ElapsedMilliseconds} ms");
+        }
+
+        public void Fit(NDarray<double> trainX, NDarray<double> trainY, NDarray<double> testX, NDarray<double> testY, int epochs, int batchSize = 50, int displayEpochs = 1, bool shuffle = true)
+        {
+            var sw = Stopwatch.StartNew();
+
+            for (int k = 0; k <= epochs; ++k)
+            {
+                List<double> losses = new List<double>();
+                List<double> accs = new List<double>();
+                var batch = ND.BatchIterator(trainX, trainY, batchSize, shuffle);
+                foreach ((var X, var y) in batch)
+                {
+                    (double vloss, double vacc) = TrainOnBatch(X, y);
+                    losses.Add(vloss);
+                    accs.Add(vacc);
+                }
+
+                if (k % displayEpochs == 0)
+                {
+                    (double vloss, double vacc) = TestOnBatch(testX, testY);
+                    Console.WriteLine($"Epoch: {k,4}/{epochs}. loss:{losses.Average():0.000000} acc:{accs.Average():0.0000}; Validation. loss:{vloss:0.000000} acc:{vacc:0.0000} Time:{sw.ElapsedMilliseconds,10} ms");
+                }
             }
             Console.WriteLine($"Time:{sw.ElapsedMilliseconds} ms");
         }

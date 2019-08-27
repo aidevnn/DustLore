@@ -108,13 +108,15 @@ namespace NDarrayLib
             return r;
         }
 
-        public static int[] BroadCastShapes(int[] shape0, int[] shape1)
+        public static (int, int, int[]) BroadCastShapes(int[] shape0, int[] shape1)
         {
             int sLength0 = shape0.Length;
             int sLength1 = shape1.Length;
             int mLength = Math.Max(sLength0, sLength1);
 
             int[] nshape = new int[mLength];
+            int prv0 = shape0.Last(), prv1 = shape1.Last();
+            int nb0 = 0, nb1 = 0;
             for (int k = mLength - 1, i = sLength0 - 1, j = sLength1 - 1; k >= 0; --k, --i, --j)
             {
                 int idx0 = i < 0 ? 1 : shape0[i];
@@ -122,10 +124,26 @@ namespace NDarrayLib
                 if (idx0 != idx1 && idx0 != 1 && idx1 != 1)
                     throw new ArgumentException($"Cannot broadcast ({shape0.Glue()}) with ({shape1.Glue()})");
 
+                if ((prv0 == 1 && idx0 != 1) || (prv0 != 1 && idx0 == 1)) ++nb0;
+                if ((prv1 == 1 && idx1 != 1) || (prv1 != 1 && idx1 == 1)) ++nb1;
+                if ((idx0 == 1 && idx1 == 1) || (prv0 == 1 && prv1 == 1)) { --nb0; --nb1; }
+
+                prv0 = idx0;
+                prv1 = idx1;
                 nshape[k] = Math.Max(idx0, idx1);
             }
 
-            return nshape;
+            bool isLeftOne0 = sLength0 < mLength || shape0.First() == 1;
+            bool isLeftOne1 = sLength1 < mLength || shape1.First() == 1;
+            bool isRightOne0 = sLength1 != 1 && shape0.Last() == 1;
+            bool isRightOne1 = sLength1 != 1 && shape1.Last() == 1;
+
+            if (isLeftOne0 && isRightOne0 || nb0 > 1) throw new ArgumentException($"One must be aligned only at one border of shape ({shape0.Glue()})");
+            if (isLeftOne1 && isRightOne1 || nb1 > 1) throw new ArgumentException($"One must be aligned only at one border of shape ({shape1.Glue()})");
+
+            int info0 = isLeftOne0 ? -1 : isRightOne0 ? 1 : 0;
+            int info1 = isLeftOne1 ? -1 : isRightOne1 ? 1 : 0;
+            return (info0, info1, nshape);
         }
 
         public static int[] PrepareAxisOps(int[] shape, int axis, bool keepdims)

@@ -28,6 +28,25 @@
     <ExternalConsole>true</ExternalConsole>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
@@ -49,6 +68,12 @@
     <Compile Include="Network.cs" />
     <Compile Include="ImportDataset.cs" />
     <Compile Include="Layers\Conv2d.cs" />
+    <Compile Include="Activations\ReluActivation.cs" />
+    <Compile Include="Activations\SoftmaxActivation.cs" />
+    <Compile Include="Layers\FlattenLayer.cs" />
+    <Compile Include="Layers\DropoutLayer.cs" />
+    <Compile Include="Layers\BatchNormalizeLayer.cs" />
+    <Compile Include="Optimizers\Adam.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="datasets\" />

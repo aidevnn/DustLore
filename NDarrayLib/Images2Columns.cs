@@ -37,7 +37,7 @@ namespace NDarrayLib
             int dimX = dx.Length;
             int dimY = dy.Length;
 
-            var nd = new NDarray<int>(dimY, dimX);
+            var nd = new NDarray<int>(shape: new int[] { dimY, dimX });
             int r = 0;
             for (int i = 0; i < dy.Length; ++i)
             {

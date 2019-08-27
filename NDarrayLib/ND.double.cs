@@ -1,8 +1,81 @@
 ﻿using System;
 namespace NDarrayLib
 {
+    public enum Backend { CSharp, MKL }
     public static partial class ND
     {
+        public static Backend Backend = Backend.CSharp;
+        public static NDarray<double> AddNDarray(NDarray<double> a, NDarray<double> b, double ca = 1, double cb = 1)
+        {
+            int acount = a.Count;
+            int bcount = b.Count;
+
+            (int ea, int eb, int[] nshape) = Utils.BroadCastShapes(a.Shape, b.Shape);
+            NDarray<double> r = new NDarray<double>(nshape);
+
+            int diva = ea <= 0 ? 1 : r.Count / acount;
+            int moda = ea >= 0 ? r.Count : acount;
+            int divb = eb <= 0 ? 1 : r.Count / bcount;
+            int modb = eb >= 0 ? r.Count : bcount;
+
+            for (int i = 0; i < r.Count; ++i)
+            {
+                int ia = (i / diva) % moda;
+                int ib = (i / divb) % modb;
+                r.Data[i] = ca * a.Data[ia] + cb * b.Data[ib];
+            }
+
+            return r;
+        }
+
+        public static NDarray<double> SubNDarray(NDarray<double> a, NDarray<double> b, double ca = 1, double cb = 1) => AddNDarray(a, b, ca, -cb);
+
+        public static NDarray<double> MulNDarray(NDarray<double> a, NDarray<double> b, double ca = 1, double cb = 1)
+        {
+            int acount = a.Count;
+            int bcount = b.Count;
+
+            (int ea, int eb, int[] nshape) = Utils.BroadCastShapes(a.Shape, b.Shape);
+            NDarray<double> r = new NDarray<double>(nshape);
+
+            int diva = ea <= 0 ? 1 : r.Count / acount;
+            int moda = ea >= 0 ? r.Count : acount;
+            int divb = eb <= 0 ? 1 : r.Count / bcount;
+            int modb = eb >= 0 ? r.Count : bcount;
+
+            for (int i = 0; i < r.Count; ++i)
+            {
+                int ia = (i / diva) % moda;
+                int ib = (i / divb) % modb;
+                r.Data[i] = ca * a.Data[ia] * cb * b.Data[ib];
+            }
+
+            return r;
+        }
+
+        public static NDarray<double> DivNDarray(NDarray<double> a, NDarray<double> b, double ca = 1, double cb = 1)
+        {
+            int acount = a.Count;
+            int bcount = b.Count;
+
+            (int ea, int eb, int[] nshape) = Utils.BroadCastShapes(a.Shape, b.Shape);
+            NDarray<double> r = new NDarray<double>(nshape);
+
+            int diva = ea <= 0 ? 1 : r.Count / acount;
+            int moda = ea >= 0 ? r.Count : acount;
+            int divb = eb <= 0 ? 1 : r.Count / bcount;
+            int modb = eb >= 0 ? r.Count : bcount;
+
+            for (int i = 0; i < r.Count; ++i)
+            {
+                int ia = (i / diva) % moda;
+                int ib = (i / divb) % modb;
+                r.Data[i] = ca * a.Data[ia] + cb * b.Data[ib];
+            }
+
+            return r;
+        }
+
         public static NDarray<double> SumAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
@@ -90,6 +163,36 @@ namespace NDarrayLib
             return nd;
         }
 
+        public static NDarray<double> VarAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
+        {
+            var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
+            var nd = new NDarray<double>(shape: nshape);
+
+            int m = Utils.ArrMul(nDarray.Shape, axis);
+            int n = m / nDarray.Shape[axis];
+            double coef = nDarray.Shape[axis];
+
+            double[] sum = new double[nd.Count];
+            double[] mean = new double[nd.Count];
+
+            for (int idx0 = 0; idx0 < nDarray.Count; ++idx0)
+            {
+                int idx1 = (idx0 / m) * n + idx0 % n;
+                var x = nDarray.Data[idx0];
+                mean[idx1] += x / coef;
+                sum[idx1] += x * x / coef;
+            }
+
+            for (int idx = 0; idx < nd.Count; ++idx)
+            {
+                var s0 = sum[idx];
+                var m0 = mean[idx];
+                nd.Data[idx] = s0 - m0 * m0;
+            }
+
+            return nd;
+        }
+
         public static NDarray<double> ApplyFuncAB(NDarray<double> a, NDarray<double> b, Func<double, double, double> func)
         {
             if (a.Count != b.Count)
@@ -122,110 +225,34 @@ namespace NDarrayLib
 
         public static NDarray<double> GemmABC(NDarray<double> a, NDarray<double> b, NDarray<double> c = null)
         {
-            if (a.Shape.Length != 2 || b.Shape.Length != 2 || (c != null && c.Shape.Length != 2))
-                throw new Exception();
+            if (Backend == Backend.MKL)
+                return NDmkl.GemmABC(a, b, c);
 
-            (int wa, int ha) = (a.Shape[0], a.Shape[1]);
-            (int wb, int hb) = (b.Shape[0], b.Shape[1]);
-
-            if (ha != wb || (c != null && (c.Shape[0] != 1 || c.Shape[1] != hb)))
-                throw new Exception();
-
-            var nd = new NDarray<double>(wa, hb);
-            for (int i = 0; i < wa; ++i)
-            {
-                for (int j = 0; j < hb; ++j)
-                {
-                    double sum = c != null ? c.Data[j] : 0;
-                    for (int k = 0; k < ha; ++k)
-                        sum += a.Data[i * ha + k] * b.Data[k * hb + j];
-
-                    nd.Data[i * hb + j] = sum;
-                }
-            }
-
-            return nd;
+            return NDsharp.GemmABC(a, b, c);
         }
 
         public static NDarray<double> GemmATBC(NDarray<double> a, NDarray<double> b, NDarray<double> c = null)
         {
-            if (a.Shape.Length != 2 || b.Shape.Length != 2 || (c != null && c.Shape.Length != 2))
-                throw new Exception();
+            if (Backend == Backend.MKL)
+                return NDmkl.GemmATBC(a, b, c);
 
-            (int wa, int ha) = (a.Shape[0], a.Shape[1]);
-            (int wb, int hb) = (b.Shape[0], b.Shape[1]);
-
-            if (ha != hb || (c != null && (c.Shape[0] != 1 || c.Shape[1] != wb)))
-                throw new Exception();
-
-            var nd = new NDarray<double>(wa, wb);
-            for (int i = 0; i < wa; ++i)
-            {
-                for (int j = 0; j < wb; ++j)
-                {
-                    double sum = c != null ? c.Data[j] : 0;
-                    for (int k = 0; k < ha; ++k)
-                        sum += a.Data[i * ha + k] * b.Data[j * ha + k];
-
-                    nd.Data[i * wb + j] = sum;
-                }
-            }
-
-            return nd;
+            return NDsharp.GemmATBC(a, b, c);
         }
 
         public static NDarray<double> GemmTABC(NDarray<double> a, NDarray<double> b, NDarray<double> c = null)
         {
-            if (a.Shape.Length != 2 || b.Shape.Length != 2 || (c != null && c.Shape.Length != 2))
-                throw new Exception();
+            if (Backend == Backend.MKL)
+                return NDmkl.GemmTABC(a, b, c);
 
-            (int wa, int ha) = (a.Shape[0], a.Shape[1]);
-            (int wb, int hb) = (b.Shape[0], b.Shape[1]);
-
-            if (wa != wb || (c != null && (c.Shape[0] != 1 || c.Shape[1] != hb)))
-                throw new Exception();
-
-            var nd = new NDarray<double>(ha, hb);
-            for (int i = 0; i < ha; ++i)
-            {
-                for (int j = 0; j < hb; ++j)
-                {
-                    double sum = c != null ? c.Data[j] : 0;
-                    for (int k = 0; k < wa; ++k)
-                        sum += a.Data[k * ha + i] * b.Data[k * hb + j];
-
-                    nd.Data[i * hb + j] = sum;
-                }
-            }
-
-            return nd;
+            return NDsharp.GemmTABC(a, b, c);
         }
 
         public static NDarray<double> GemmTATBC(NDarray<double> a, NDarray<double> b, NDarray<double> c = null)
         {
-            if (a.Shape.Length != 2 || b.Shape.Length != 2 || (c != null && c.Shape.Length != 2))
-                throw new Exception();
+            if (Backend == Backend.MKL)
+                return NDmkl.GemmTATBC(a, b, c);
 
-            (int wa, int ha) = (a.Shape[0], a.Shape[1]);
-            (int wb, int hb) = (b.Shape[0], b.Shape[1]);
-
-            if (wa != hb || (c != null && (c.Shape[0] != 1 || c.Shape[1] != wb)))
-                throw new Exception();
-
-            var nd = new NDarray<double>(ha, wb);
-            for (int i = 0; i < ha; ++i)
-            {
-                for (int j = 0; j < wb; ++j)
-                {
-                    double sum = c != null ? c.Data[j] : 0;
-                    for (int k = 0; k < wa; ++k)
-                        sum += a.Data[k * ha + i] * b.Data[j * wa + k];
-
-                    nd.Data[i * wb + j] = sum;
-                }
-            }
-
-            return nd;
+            return NDsharp.GemmTATBC(a, b, c);
         }
 
     }

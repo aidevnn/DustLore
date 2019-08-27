@@ -50,7 +50,7 @@ namespace NDarrayLib
         {
             Shape = shape.ToArray();
             Count = Utils.ArrMul(Shape);
-            Data = data.ToArray();
+            Data = data;
             if (Data.Length != Count)
                 throw new Exception();
         }
@@ -82,10 +82,16 @@ namespace NDarrayLib
             return Data.Skip(idx * s).Take(s).ToArray();
         }
 
+        public NDarray<V> Cast<V>()
+        {
+            var data = Data.Select(OpsT.Cast<V>).ToArray();
+            return new NDarray<V>(data: data, shape: Shape);
+        }
+
         public NDarray<U> Reshape(params int[] shape)
         {
             var nshape = Utils.PrepareReshape(Count, shape);
-            return new NDarray<U>(data: Data, shape: nshape);
+            return new NDarray<U>(data: Data.ToArray(), shape: nshape);
         }
 
         public NDarray<U> ReshapeInplace(params int[] shape)

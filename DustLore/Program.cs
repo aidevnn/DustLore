@@ -49,6 +49,132 @@ namespace DustLore
 
         static void Test2()
         {
+
+            int[] x = { 3, 2, 4 };
+            var st = Utils.Shape2Strides(x);
+            var ind0 = new int[x.Length];
+            var ind1 = new int[x.Length];
+            int nb = Utils.ArrMul(x);
+
+            //Console.WriteLine($"#### ({nb,3} {st.Glue(fmt: "{0,3}")})");
+            Console.WriteLine();
+            for (int k = 0; k < x.Length; ++k)
+            {
+                var y = x.ToArray();
+                y[k] = 1;
+                var st0 = Utils.Shape2Strides(y);
+                //int m = Utils.ArrMul(x, start: k);
+                //int n = Utils.ArrMul(x, start: k + 1);
+                //Console.WriteLine($"#### ({m,3} {n,3})");
+                for (int i = 0; i < nb; ++i)
+                {
+                    Utils.Int2ArrayIndex(i, x, ind0);
+                    ind0.CopyTo(ind1, 0);
+                    ind1[k] = 0;
+
+                    int j = Utils.Array2IntIndex(ind1, x, st);
+                    //int j0 = (i / m) * m + i % n;
+
+                    int l = Utils.Array2IntIndex(ind1, y, st0);
+                    //int l0 = (i / m) * n + i % n;
+
+                    //if (j != j0 || l != l0)
+                    Console.WriteLine($"i:{i,3} ({ind0.Glue()}) => ({ind1.Glue()}) j:{j,3} l:{l,3} ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void Test3(params int[] x)
+        {
+            var st = Utils.Shape2Strides(x);
+            var ind0 = new int[x.Length];
+            var ind1 = new int[x.Length];
+            int nb = Utils.ArrMul(x);
+
+            Console.WriteLine();
+            for (int k = 0; k < x.Length; ++k)
+            {
+                var y = x.ToArray();
+                for (int k0 = k; k0 < x.Length; ++k0)
+                    y[k0] = 1;
+
+                var st0 = Utils.Shape2Strides(y);
+                var m = Utils.ArrMul(x, k);
+                Console.WriteLine($"({y.Glue()}) {m}");
+                for (int i = 0; i < nb; ++i)
+                {
+                    Utils.Int2ArrayIndex(i, x, ind0);
+                    ind0.CopyTo(ind1, 0);
+                    for (int k0 = k; k0 < x.Length; ++k0)
+                        ind1[k0] = 0;
+
+                    int j = Utils.Array2IntIndex(ind1, x, st0);
+                    int j0 = i / m;
+                    Console.WriteLine($"i:{i,3} ({ind0.Glue()}) => ({ind1.Glue()}) j:{j,3} {j0}");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void Test4(params int[] x)
+        {
+            var st = Utils.Shape2Strides(x);
+            var ind0 = new int[x.Length];
+            var ind1 = new int[x.Length];
+            int nb = Utils.ArrMul(x);
+
+            Console.WriteLine();
+            for (int k = 0; k < x.Length; ++k)
+            {
+                var y = x.ToArray();
+                for (int k0 = 0; k0 < k; ++k0)
+                    y[k0] = 1;
+
+                var st0 = Utils.Shape2Strides(y);
+                var m = Utils.ArrMul(x, k);
+                Console.WriteLine($"({y.Glue()}) {m}");
+                for (int i = 0; i < nb; ++i)
+                {
+                    Utils.Int2ArrayIndex(i, x, ind0);
+                    ind0.CopyTo(ind1, 0);
+                    for (int k0 = 0; k0 < k; ++k0)
+                        ind1[k0] = 0;
+
+                    int j = Utils.Array2IntIndex(ind1, x, st0);
+                    int j0 = i % m;
+                    Console.WriteLine($"i:{i,3} ({ind0.Glue()}) => ({ind1.Glue()}) j:{j,3} {j0}");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void Test5()
+        {
+            void testBroadcast(int[] s0, int[] s1)
+            {
+                var p = Utils.BroadCastShapes(s0, s1);
+                Console.WriteLine($"({s0.Glue()}) ({s1.Glue()}) => {p.Item1} {p.Item2} ({p.Item3.Glue()})");
+            }
+
+            testBroadcast(new int[] { 2, 3 }, new int[] { 2, 3 });
+            testBroadcast(new int[] { 3 }, new int[] { 2, 3 });
+            testBroadcast(new int[] { 2, 1 }, new int[] { 2, 3 });
+            testBroadcast(new int[] { 2, 3 }, new int[] { 3 });
+            testBroadcast(new int[] { 2, 3 }, new int[] { 2, 1 });
+            testBroadcast(new int[] { 1, 3 }, new int[] { 2, 1 });
+            testBroadcast(new int[] { 3 }, new int[] { 2, 1 });
+            testBroadcast(new int[] { 2, 1 }, new int[] { 1, 3 });
+            testBroadcast(new int[] { 2, 1 }, new int[] { 3 });
+            testBroadcast(new int[] { 4, 2, 3 }, new int[] { 2, 3 });
+            testBroadcast(new int[] { 4, 2, 1 }, new int[] { 2, 3 });
+            testBroadcast(new int[] { 4, 2, 1 }, new int[] { 3 });
+            testBroadcast(new int[] { 4, 1, 1 }, new int[] { 3 });
+            testBroadcast(new int[] { 2, 3 }, new int[] { 1 });
+        }
+
+        static void Test6()
+        {
             var x = ND.Uniform(0, 10, 4, 2, 3);
             Console.WriteLine(x);
             Console.WriteLine($"a={x}");
@@ -59,6 +185,23 @@ namespace DustLore
                 //Console.WriteLine($"a.sum(axis={k}, keepdims=True)");
                 //Console.WriteLine(x.SumAxis(k, true));
             }
+        }
+
+        static void Test7()
+        {
+
+            var x0 = ND.Uniform(0, 10, 3, 4).Cast<double>();
+            var x1 = ND.Uniform(0, 10, 5, 3).Cast<double>();
+            var c = ND.Uniform(0, 10, 1, 5).Cast<double>();
+            Console.WriteLine(x0);
+            Console.WriteLine(x1);
+            Console.WriteLine(c);
+            Console.WriteLine($"a={x0}");
+            Console.WriteLine($"b={x1}");
+            Console.WriteLine($"c={c}");
+            Console.WriteLine("np.dot(a.T,b.T)+c");
+            Console.WriteLine(NDsharp.GemmTATBC(x0, x1, c));
+            Console.WriteLine(NDmkl.GemmTATBC(x0, x1, c));
         }
 
         static void TestXor(bool summary = false, int epochs = 50, int displayEpochs = 25)
@@ -133,14 +276,47 @@ namespace DustLore
             Console.WriteLine();
         }
 
+        static void TestDigitsCNN(int epochs = 5, int displayEpochs = 1)
+        {
+            ND.Backend = Backend.MKL;
+            Console.WriteLine($"Hello World, CNN on Digits Dataset. Backend {ND.Backend}");
+
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
+            trainX.ReshapeInplace(-1, 1, 8, 8);
+            testX.ReshapeInplace(-1, 1, 8, 8);
+
+            var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
+
+            net.AddLayer(new Conv2d(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new DropoutLayer(0.25));
+            net.AddLayer(new BatchNormalizeLayer());
+            net.AddLayer(new Conv2d(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new DropoutLayer(0.25));
+            net.AddLayer(new BatchNormalizeLayer());
+            net.AddLayer(new FlattenLayer());
+            net.AddLayer(new DenseLayer(256));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new DropoutLayer(0.4));
+            net.AddLayer(new BatchNormalizeLayer());
+            net.AddLayer(new DenseLayer(10));
+            net.AddLayer(new SoftmaxLayer());
+
+            net.Summary(true);
+
+            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 100, displayEpochs: displayEpochs);
+        }
+
         public static void Main(string[] args)
         {
             //TestXor(true, 500, 50);
             //TestIris(true, 50, 5);
-            TestDigits(true, 50, 5);
+            //TestDigits(true, 50, 5);
 
             //for (int k = 0; k < 5; ++k) TestDigits();
 
+            TestDigitsCNN(50, 1);
         }
     }
 }

@@ -60,4 +60,14 @@ namespace DustLore.Layers
     {
         public TanhLayer() : base(new TanhActivation()) { }
     }
+
+    public class ReluLayer : ActivationLayer
+    {
+        public ReluLayer() : base(new ReluActivation()) { }
+    }
+
+    public class SoftmaxLayer : ActivationLayer
+    {
+        public SoftmaxLayer() : base(new SoftmaxActivation()) { }
+    }
 }
