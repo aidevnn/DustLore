@@ -2,10 +2,14 @@
 
 An example of a CNN neural network on the dataset Digits. The Intel MKL is used for better speed, but only the matrix multiplication gemm was used at this time.
 The futur challenge is may be to rewrite all code in C++ and compiling directly with Intel C++ Compiler for better performance and educative purpose without requiring the MKL library.
-The ultimate goal is to use NVIDIA CUDA but it is another long and hard work.
+The ultimate goal is to use NVIDIA CUDA but it is another long and hard work. Actually, a double precision floatting number is used, but it is 2 times slower than single precision float, and it will be the next improvement.
 
 The definition of the CNN network.
 ```
+(var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
+trainX.ReshapeInplace(-1, 1, 8, 8);
+testX.ReshapeInplace(-1, 1, 8, 8);
+
 var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
 
 net.AddLayer(new Conv2d(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
@@ -25,6 +29,8 @@ net.AddLayer(new DenseLayer(10));
 net.AddLayer(new SoftmaxLayer());
 
 net.Summary(true);
+
+net.Fit(trainX, trainY, testX, testY, epochs: 50, batchSize: 100, displayEpochs: 1);
 ```
 
 The output of the CNN network.
@@ -77,3 +83,6 @@ Epoch:   49/50. loss:0.002052 acc:0.9956; Validation. loss:0.026849 acc:0.9667 T
 Epoch:   50/50. loss:0.001430 acc:0.9963; Validation. loss:0.027336 acc:0.9667 Time:    156936 ms
 Time:156936 ms
 ```
+
+### Reference
+The original code is from this repo in Python https://github.com/eriklindernoren/ML-From-Scratch
