@@ -5,9 +5,9 @@ using NDarrayLib;
 
 namespace DustLore.Layers
 {
-    public class Conv2d : ILayer
+    public class Conv2dLayer : ILayer
     {
-        public Conv2d(int nfilters, (int, int) filterShape, string padding = "same", int strides = 1)
+        public Conv2dLayer(int nfilters, (int, int) filterShape, string padding = "same", int strides = 1)
         {
             this.nfilters = nfilters;
             this.filterShape = filterShape;
@@ -15,7 +15,7 @@ namespace DustLore.Layers
             this.strides = strides;
         }
 
-        public Conv2d(int nfilters, (int, int) filterShape, (int, int, int) inputShape, string padding = "same", int strides = 1)
+        public Conv2dLayer(int nfilters, (int, int) filterShape, (int, int, int) inputShape, string padding = "same", int strides = 1)
         {
             this.nfilters = nfilters;
             this.filterShape = filterShape;

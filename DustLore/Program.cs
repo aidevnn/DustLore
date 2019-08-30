@@ -261,17 +261,17 @@ namespace DustLore
             Console.WriteLine("Hello World, MLP on Digits Dataset.");
 
             (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
-            var net = new Network(new SGD(0.025, 0.2), new CrossEntropyLoss(), new ArgmaxAccuracy());
+            var net = new Network(new SGD(0.02), new CrossEntropyLoss(), new ArgmaxAccuracy());
             net.AddLayer(new DenseLayer(32, inputShape: 64));
             net.AddLayer(new SigmoidLayer());
             net.AddLayer(new DenseLayer(10));
-            net.AddLayer(new SigmoidLayer());
+            net.AddLayer(new SoftmaxLayer());
 
             if (summary)
                 net.Summary();
 
-            net.Fit(trainX, trainY, epochs, displayEpochs, batchsize);
-            net.Test(testX, testY);
+            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 100, displayEpochs: displayEpochs);
+            //net.Test(testX, testY);
 
             Console.WriteLine();
         }
@@ -285,13 +285,13 @@ namespace DustLore
             trainX.ReshapeInplace(-1, 1, 8, 8);
             testX.ReshapeInplace(-1, 1, 8, 8);
 
-            var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
+            var net = new Network(new Adam(0.01), new CrossEntropyLoss(), new ArgmaxAccuracy());
 
-            net.AddLayer(new Conv2d(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
+            net.AddLayer(new Conv2dLayer(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
             net.AddLayer(new ReluLayer());
             net.AddLayer(new DropoutLayer(0.25));
             net.AddLayer(new BatchNormalizeLayer());
-            net.AddLayer(new Conv2d(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
+            net.AddLayer(new Conv2dLayer(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
             net.AddLayer(new ReluLayer());
             net.AddLayer(new DropoutLayer(0.25));
             net.AddLayer(new BatchNormalizeLayer());
@@ -305,7 +305,7 @@ namespace DustLore
 
             net.Summary(true);
 
-            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 100, displayEpochs: displayEpochs);
+            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 256, displayEpochs: displayEpochs);
         }
 
         public static void Main(string[] args)
@@ -317,6 +317,8 @@ namespace DustLore
             //for (int k = 0; k < 5; ++k) TestDigits();
 
             TestDigitsCNN(50, 1);
+
+
         }
     }
 }

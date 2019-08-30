@@ -37,7 +37,7 @@ namespace DustLore.Optimizers
             for (int i = 0; i < m.Count; ++i)
             {
                 var mh = m.Data[i] / (1 - b1);
-                var vh = v.Data[i] / (1 - b1);
+                var vh = v.Data[i] / (1 - b2);
                 var w0 = lr * mh / (Math.Sqrt(vh) + 1e-8);
 
                 w.Data[i] -= w0;

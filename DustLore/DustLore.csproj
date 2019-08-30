@@ -67,7 +67,7 @@
     <Compile Include="Layers\DenseLayer.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="ImportDataset.cs" />
-    <Compile Include="Layers\Conv2d.cs" />
+    <Compile Include="Layers\Conv2dLayer.cs" />
     <Compile Include="Activations\ReluActivation.cs" />
     <Compile Include="Activations\SoftmaxActivation.cs" />
     <Compile Include="Layers\FlattenLayer.cs" />
