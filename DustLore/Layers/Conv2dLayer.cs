@@ -33,7 +33,7 @@ namespace DustLore.Layers
         (int, int, int) inputShape;
         (int, int, int, int) lastInputShape;
 
-        public string Name => "Conv2D";
+        public string Name => "Conv2dLayer";
 
         public int Params => weight.Count + biases.Count;
 

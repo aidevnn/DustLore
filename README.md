@@ -12,11 +12,11 @@ testX.ReshapeInplace(-1, 1, 8, 8);
 
 var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
 
-net.AddLayer(new Conv2d(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
+net.AddLayer(new Conv2dLayer(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
 net.AddLayer(new ReluLayer());
 net.AddLayer(new DropoutLayer(0.25));
 net.AddLayer(new BatchNormalizeLayer());
-net.AddLayer(new Conv2d(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
+net.AddLayer(new Conv2dLayer(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
 net.AddLayer(new ReluLayer());
 net.AddLayer(new DropoutLayer(0.25));
 net.AddLayer(new BatchNormalizeLayer());
@@ -40,11 +40,11 @@ Train on 1617 / Test on 180
 Summary
 Network: Adam / CrossEntropyLoss / ArgmaxAccuracy
 Input  Shape:(1 8 8)
-Layer: Conv2D               Parameters:     416 Nodes[In:   (1 8 8) -> Out:  (16 8 8)]
+Layer: Conv2dLayer          Parameters:     416 Nodes[In:   (1 8 8) -> Out:  (16 8 8)]
 Layer: ReluLayer            Parameters:       0 Nodes[In:  (16 8 8) -> Out:  (16 8 8)]
 Layer: DropoutLayer         Parameters:       0 Nodes[In:  (16 8 8) -> Out:  (16 8 8)]
 Layer: BatchNormalizeLayer  Parameters:    2048 Nodes[In:  (16 8 8) -> Out:  (16 8 8)]
-Layer: Conv2D               Parameters:   12832 Nodes[In:  (16 8 8) -> Out:  (32 8 8)]
+Layer: Conv2dLayer          Parameters:   12832 Nodes[In:  (16 8 8) -> Out:  (32 8 8)]
 Layer: ReluLayer            Parameters:       0 Nodes[In:  (32 8 8) -> Out:  (32 8 8)]
 Layer: DropoutLayer         Parameters:       0 Nodes[In:  (32 8 8) -> Out:  (32 8 8)]
 Layer: BatchNormalizeLayer  Parameters:    4096 Nodes[In:  (32 8 8) -> Out:  (32 8 8)]
