@@ -5,6 +5,11 @@ namespace NDarrayLib
 {
     public static class NDmkl
     {
+        const int TRANSPOSE_YES = 112;
+        const int TRANSPOSE_NO = 111;
+        const int CMAT = 101;
+        const int FMAT = 100;
+
         [DllImport("mkl_rt", EntryPoint = "cblas_dgemm")]
         static extern void MKL_dgemm(int Order, int TransA, int TransB,
             int M, int N, int K,
@@ -26,8 +31,7 @@ namespace NDarrayLib
             if (c != null)
                 nd = ND.AddNDarray(nd, c);
 
-            //MKL_dgemm(101, 111, 111, m', n', k, 1.0, A, k, B, n, 0.0, C, n'); A=m' x k; B = k x n'; C = m' x n'
-            MKL_dgemm(101, 111, 111, wa, hb, ha, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, hb);
+            MKL_dgemm(CMAT, TRANSPOSE_NO, TRANSPOSE_NO, wa, hb, ha, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, hb);
 
             return nd;
         }
@@ -47,8 +51,7 @@ namespace NDarrayLib
             if (c != null)
                 nd = ND.AddNDarray(nd, c);
 
-            //MKL_dgemm(101, 111, 111, m', n', k, 1.0, A, k, B, n, 0.0, C, n'); A=m' x k; B = k x n'; C = m' x n'
-            MKL_dgemm(101, 111, 112, wa, wb, ha, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, wb);
+            MKL_dgemm(CMAT, TRANSPOSE_NO, TRANSPOSE_YES, wa, wb, ha, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, wb);
 
             return nd;
         }
@@ -68,8 +71,7 @@ namespace NDarrayLib
             if (c != null)
                 nd = ND.AddNDarray(nd, c);
 
-            //MKL_dgemm(101, 111, 111, m', n', k, 1.0, A, k, B, n, 0.0, C, n'); A=m' x k; B = k x n'; C = m' x n'
-            MKL_dgemm(101, 112, 111, ha, hb, wa, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, hb);
+            MKL_dgemm(CMAT, TRANSPOSE_YES, TRANSPOSE_NO, ha, hb, wa, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, hb);
 
             return nd;
         }
@@ -89,8 +91,7 @@ namespace NDarrayLib
             if (c != null)
                 nd = ND.AddNDarray(nd, c);
 
-            //MKL_dgemm(101, 111, 111, m', n', k, 1.0, A, k, B, n, 0.0, C, n'); A=m' x k; B = k x n'; C = m' x n'
-            MKL_dgemm(101, 112, 112, ha, wb, wa, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, wb);
+            MKL_dgemm(CMAT, TRANSPOSE_YES, TRANSPOSE_YES, ha, wb, wa, 1.0, a.Data, ha, b.Data, hb, 1.0, nd.Data, wb);
 
             return nd;
         }
