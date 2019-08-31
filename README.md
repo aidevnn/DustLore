@@ -1,8 +1,9 @@
 # DustLore
 
-An example of a CNN and RNN. The Intel MKL is used for better speed, but only the matrix multiplication gemm was used at this time.
+An example of a CNN and RNN. The Intel MKL is used for better speed, but only the matrix multiplication gemm was implemented at this time.
 
 The dataset for the CNN is digits handwrite from scikit.
+
 The definition of the CNN network.
 ```
 (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
@@ -83,7 +84,8 @@ Epoch:   50/50. loss:0.001430 acc:0.9963; Validation. loss:0.027336 acc:0.9667 T
 Time:156936 ms
 ```
 
-The dataset for the RNN is a sequence of integer.
+The dataset for the RNN is a sequence of integers.
+
 The definition of the RNN network.
 ```
 (var trainX, var trainY, var testX, var testY) = ImportDataset.SequenceDataset(250, 0.8);
