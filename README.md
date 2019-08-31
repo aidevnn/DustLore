@@ -1,9 +1,10 @@
 # DustLore
 
-An example of a CNN neural network on the dataset Digits. The Intel MKL is used for better speed, but only the matrix multiplication gemm was used at this time.
+An example of a CNN and RNN. The Intel MKL is used for better speed, but only the matrix multiplication gemm was used at this time.
 The futur challenge is may be to rewrite all code in C++ and compiling directly with Intel C++ Compiler for better performance and educative purpose without requiring the MKL library.
 The ultimate goal is to use NVIDIA CUDA but it is another long and hard work. Actually, a double precision floatting number is used, but it is 2 times slower than single precision float, and it will be the next improvement.
 
+The dataset for the CNN is digits handwrite from scikit.
 The definition of the CNN network.
 ```
 (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
@@ -82,6 +83,66 @@ Epoch:   48/50. loss:0.002444 acc:0.9950; Validation. loss:0.025522 acc:0.9667 T
 Epoch:   49/50. loss:0.002052 acc:0.9956; Validation. loss:0.026849 acc:0.9667 Time:    153881 ms
 Epoch:   50/50. loss:0.001430 acc:0.9963; Validation. loss:0.027336 acc:0.9667 Time:    156936 ms
 Time:156936 ms
+```
+
+The dataset for the RNN is a sequence of integer.
+The definition of the RNN network.
+```
+(var trainX, var trainY, var testX, var testY) = ImportDataset.SequenceDataset(250, 0.8);
+var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
+
+net.AddLayer(new RnnLayer(nUnits: 10, inputShape: (10, 61)));
+net.AddLayer(new SoftmaxLayer());
+
+net.Summary(true);
+
+net.Fit(trainX, trainY, testX, testY, 500, 20, 50);
+```
+
+The output of the RNN network.
+```
+Hello World, RNN on Sequence Dataset. Backend MKL
+Train on 200 / Test on 50
+Summary
+Network: Adam / CrossEntropyLoss / ArgmaxAccuracy
+Input  Shape:(10 61)
+Layer: RnnLayer             Parameters:    1320 Nodes[In:   (10 61) -> Out:   (10 61)]
+Layer: SoftmaxLayer         Parameters:       0 Nodes[In:   (10 61) -> Out:   (10 61)]
+Output Shape:(10 61)
+Total Parameters:1320
+
+Epoch:    0/500. loss:0.083112 acc:0.0515; Validation. loss:0.082722 acc:0.1000 Time:       123 ms
+Epoch:   50/500. loss:0.043852 acc:0.5765; Validation. loss:0.042981 acc:0.6200 Time:      3128 ms
+Epoch:  100/500. loss:0.032107 acc:0.7350; Validation. loss:0.031252 acc:0.7420 Time:      6116 ms
+Epoch:  150/500. loss:0.023720 acc:0.8465; Validation. loss:0.023054 acc:0.8600 Time:      9062 ms
+Epoch:  200/500. loss:0.017329 acc:0.9595; Validation. loss:0.016810 acc:0.9700 Time:     11977 ms
+Epoch:  250/500. loss:0.012618 acc:0.9595; Validation. loss:0.012182 acc:0.9700 Time:     14916 ms
+Epoch:  300/500. loss:0.009190 acc:0.9595; Validation. loss:0.008837 acc:0.9700 Time:     17716 ms
+Epoch:  350/500. loss:0.006761 acc:1.0000; Validation. loss:0.006484 acc:1.0000 Time:     20617 ms
+Epoch:  400/500. loss:0.005029 acc:1.0000; Validation. loss:0.004817 acc:1.0000 Time:     23514 ms
+Epoch:  450/500. loss:0.003786 acc:1.0000; Validation. loss:0.003620 acc:1.0000 Time:     26374 ms
+Epoch:  500/500. loss:0.002883 acc:1.0000; Validation. loss:0.002751 acc:1.0000 Time:     29465 ms
+Time:29465 ms
+
+Sample Test
+X=[ 3  6  9 12 15 18 21 24 27 30]
+y=[ 6  9 12 15 18 21 24 27 30  1]
+p=[ 6  9 12 15 18 21 24 27 30  1]
+
+Sample Test
+X=[ 6 12 18 24 30 36 42 48 54 60]
+y=[12 18 24 30 36 42 48 54 60  1]
+p=[12 18 24 30 36 42 48 54 60  1]
+
+Sample Test
+X=[ 4  8 12 16 20 24 28 32 36 40]
+y=[ 8 12 16 20 24 28 32 36 40  1]
+p=[ 8 12 16 20 24 28 32 36 40  1]
+
+Sample Test
+X=[ 5 10 15 20 25 30 35 40 45 50]
+y=[10 15 20 25 30 35 40 45 50  1]
+p=[10 15 20 25 30 35 40 45 50  1]
 ```
 
 ### Reference

@@ -44,34 +44,14 @@ namespace DustLore.Losses
 
         public double Func(NDarray<double> y, NDarray<double> p)
         {
-            int dim0 = y.Shape[0];
-            int dim1 = y.Shape[1];
-            double count = 0;
-            for(int i = 0; i < dim0; ++i)
-            {
-                var yi = Argmax(y.Data, i * dim1, dim1);
-                var pi = Argmax(p.Data, i * dim1, dim1);
-                count += yi == pi ? 1.0 : 0.0;
-            }
+            var y0 = ND.ArgmaxAxis(y, -1);
+            var p0 = ND.ArgmaxAxis(p, -1);
+            NDarray<double> eq = new NDarray<double>(y0.Shape);
+            for (int i = 0; i < eq.Count; ++i)
+                eq.Data[i] = Math.Abs(y0.Data[i] - p0.Data[i]) < 1e-6 ? 1.0 : 0.0;
 
-            return count / dim0;
+            return eq.Data.Average();
         }
 
-        static int Argmax(double[] arr, int start, int length)
-        {
-            int bestIdx = 0;
-            double bestVal = double.MinValue;
-            for(int k = start; k < start + length; ++k)
-            {
-                var v = arr[k];
-                if (v > bestVal)
-                {
-                    bestIdx = k - start;
-                    bestVal = v;
-                }
-            }
-
-            return bestIdx;
-        }
     }
 }

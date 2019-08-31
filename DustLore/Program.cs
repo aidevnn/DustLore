@@ -204,6 +204,34 @@ namespace DustLore
             Console.WriteLine(NDmkl.GemmTATBC(x0, x1, c));
         }
 
+        static void Test8()
+        {
+            int N = 5;
+            double[][] y0 = new double[N][];
+            double[][] p0 = new double[N][];
+            for (int k = 0; k < N; ++k)
+            {
+                var y = Enumerable.Range(0, 4).Select(Convert.ToDouble).OrderBy(x => Utils.Random.NextDouble()).ToArray();
+                var p = Enumerable.Range(0, 4).Select(Convert.ToDouble).OrderBy(x => Utils.Random.NextDouble()).ToArray();
+                y0[k] = y;
+                p0[k] = p;
+            }
+
+            var Y = new NDarray<double>(y0).Reshape(-1, 2, 2);
+            var P = new NDarray<double>(p0).Reshape(-1, 2, 2);
+
+            var adm = new Adam();
+            var b = new BatchNormalizeLayer() { IsTraining = true };
+            b.SetInputShape(new int[] { 2, 2 });
+            b.Initialize(adm);
+
+            Console.WriteLine(Y);
+            Console.WriteLine(P);
+
+            Console.WriteLine(b.Forward(Y, true));
+            Console.WriteLine(b.Backward(P));
+        }
+
         static void TestXor(bool summary = false, int epochs = 50, int displayEpochs = 25)
         {
             Console.WriteLine("Hello World, MLP on Xor Dataset.");
@@ -281,7 +309,7 @@ namespace DustLore
             ND.Backend = Backend.MKL;
             Console.WriteLine($"Hello World, CNN on Digits Dataset. Backend {ND.Backend}");
 
-            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9);
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.6, normalize: false);
             trainX.ReshapeInplace(-1, 1, 8, 8);
             testX.ReshapeInplace(-1, 1, 8, 8);
 
@@ -308,6 +336,38 @@ namespace DustLore
             net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 256, displayEpochs: displayEpochs);
         }
 
+        static void TestRNN()
+        {
+            ND.Backend = Backend.MKL;
+            Console.WriteLine($"Hello World, RNN on Sequence Dataset. Backend {ND.Backend}");
+
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.SequenceDataset(250, 0.8);
+            var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
+
+            net.AddLayer(new RnnLayer(nUnits: 10, inputShape: (10, 61)));
+            net.AddLayer(new SoftmaxLayer());
+
+            net.Summary(true);
+
+            net.Fit(trainX, trainY, testX, testY, 500, 20, 50);
+
+            var pred = net.Predict(testX);
+            var apred = ND.ArgmaxAxis(pred, -1);
+            var atestX = ND.ArgmaxAxis(testX, -1);
+            var atestY = ND.ArgmaxAxis(testY, -1);
+            for (int i = 0; i < 5; ++i)
+            {
+                var x = atestX.GetAtIndex(i);
+                var y = atestY.GetAtIndex(i);
+                var p = apred.GetAtIndex(i);
+                Console.WriteLine();
+                Console.WriteLine("Sample Test");
+                Console.WriteLine("X=[{0}]", x.Glue(fmt: "{0,2}"));
+                Console.WriteLine("y=[{0}]", y.Glue(fmt: "{0,2}"));
+                Console.WriteLine("p=[{0}]", p.Glue(fmt: "{0,2}"));
+            }
+        }
+
         public static void Main(string[] args)
         {
             //TestXor(true, 500, 50);
@@ -316,7 +376,20 @@ namespace DustLore
 
             //for (int k = 0; k < 5; ++k) TestDigits();
 
-            TestDigitsCNN(50, 1);
+            //TestDigitsCNN(50, 1);
+
+            TestRNN();
+
+            //var a = ND.Uniform(0, 10, 3, 3, 4).Cast<double>();
+            //var b = ND.Uniform(0, 10, 3, 4).Cast<double>();
+            //Console.WriteLine(a);
+            //Console.WriteLine(b);
+            //Console.WriteLine($"a={a}");
+            //Console.WriteLine($"b={b}");
+            //Console.WriteLine("a[:,-1]=b");
+            //RnnLayer.SetArrAt(-1, a, b);
+            //Console.WriteLine("a");
+            //Console.WriteLine(a);
 
 
         }

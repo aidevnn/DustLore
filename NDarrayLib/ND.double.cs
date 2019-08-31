@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 namespace NDarrayLib
 {
     public enum Backend { CSharp, MKL }
@@ -78,6 +80,7 @@ namespace NDarrayLib
 
         public static NDarray<double> SumAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(nshape);
 
@@ -95,6 +98,7 @@ namespace NDarrayLib
 
         public static NDarray<double> ProdAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(v0: 1, shape: nshape);
 
@@ -112,6 +116,7 @@ namespace NDarrayLib
 
         public static NDarray<double> MinAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(v0: int.MaxValue, shape: nshape);
 
@@ -129,6 +134,7 @@ namespace NDarrayLib
 
         public static NDarray<double> MaxAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(v0: int.MinValue, shape: nshape);
 
@@ -146,6 +152,7 @@ namespace NDarrayLib
 
         public static NDarray<double> MeanAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(shape: nshape);
 
@@ -165,6 +172,7 @@ namespace NDarrayLib
 
         public static NDarray<double> VarAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
         {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
             var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
             var nd = new NDarray<double>(shape: nshape);
 
@@ -188,6 +196,39 @@ namespace NDarrayLib
                 var s0 = sum[idx];
                 var m0 = mean[idx];
                 nd.Data[idx] = s0 - m0 * m0;
+            }
+
+            return nd;
+        }
+
+        public static NDarray<int> ArgmaxAxis(NDarray<double> nDarray, int axis, bool keepdims = false)
+        {
+            axis = (axis + nDarray.Shape.Length) % nDarray.Shape.Length;
+            var nshape = Utils.PrepareAxisOps(nDarray.Shape, axis, keepdims);
+            var nd = new NDarray<int>(shape: nshape);
+
+            int[] nshape0 = nDarray.Shape.ToArray();
+            nshape0[axis] = 1;
+            int[] indices = new int[nDarray.Shape.Length];
+            int[] strides = Utils.Shape2Strides(nDarray.Shape);
+            for (int idx0 = 0; idx0 < nd.Count; ++idx0)
+            {
+                Utils.Int2ArrayIndex(idx0, nshape0, indices);
+                int bIdx = 0;
+                double bVal = double.MinValue;
+                for (int k = 0; k < nDarray.Shape[axis]; ++k)
+                {
+                    indices[axis] = k;
+                    int idx1 = Utils.Array2IntIndex(indices, nDarray.Shape, strides);
+                    var v = nDarray.Data[idx1];
+                    if (v > bVal)
+                    {
+                        bVal = v;
+                        bIdx = k;
+                    }
+                }
+
+                nd.Data[idx0] = bIdx;
             }
 
             return nd;

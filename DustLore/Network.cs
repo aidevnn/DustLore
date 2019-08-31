@@ -93,7 +93,7 @@ namespace DustLore
             Console.WriteLine();
         }
 
-        public void Fit(NDarray<double> trainX, NDarray<double> trainY, int epochs, int displayEpochs, int batchSize = 50, bool shuffle = true)
+        public void Fit(NDarray<double> trainX, NDarray<double> trainY, int epochs, int batchSize = 50, int displayEpochs = 1, bool shuffle = true)
         {
             var sw = Stopwatch.StartNew();
 

@@ -74,6 +74,7 @@
     <Compile Include="Layers\DropoutLayer.cs" />
     <Compile Include="Layers\BatchNormalizeLayer.cs" />
     <Compile Include="Optimizers\Adam.cs" />
+    <Compile Include="Layers\RnnLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="datasets\" />
