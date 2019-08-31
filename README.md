@@ -1,8 +1,6 @@
 # DustLore
 
 An example of a CNN and RNN. The Intel MKL is used for better speed, but only the matrix multiplication gemm was used at this time.
-The futur challenge is may be to rewrite all code in C++ and compiling directly with Intel C++ Compiler for better performance and educative purpose without requiring the MKL library.
-The ultimate goal is to use NVIDIA CUDA but it is another long and hard work. Actually, a double precision floatting number is used, but it is 2 times slower than single precision float, and it will be the next improvement.
 
 The dataset for the CNN is digits handwrite from scikit.
 The definition of the CNN network.
