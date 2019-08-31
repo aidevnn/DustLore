@@ -309,11 +309,11 @@ namespace DustLore
             ND.Backend = Backend.MKL;
             Console.WriteLine($"Hello World, CNN on Digits Dataset. Backend {ND.Backend}");
 
-            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.6, normalize: false);
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.9, normalize: false);
             trainX.ReshapeInplace(-1, 1, 8, 8);
             testX.ReshapeInplace(-1, 1, 8, 8);
 
-            var net = new Network(new Adam(0.01), new CrossEntropyLoss(), new ArgmaxAccuracy());
+            var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
 
             net.AddLayer(new Conv2dLayer(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
             net.AddLayer(new ReluLayer());
@@ -333,7 +333,7 @@ namespace DustLore
 
             net.Summary(true);
 
-            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 256, displayEpochs: displayEpochs);
+            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 64, displayEpochs: displayEpochs);
         }
 
         static void TestRNN()
@@ -376,9 +376,9 @@ namespace DustLore
 
             //for (int k = 0; k < 5; ++k) TestDigits();
 
-            //TestDigitsCNN(50, 1);
+            TestDigitsCNN(50, 1);
 
-            TestRNN();
+            //TestRNN();
 
             //var a = ND.Uniform(0, 10, 3, 3, 4).Cast<double>();
             //var b = ND.Uniform(0, 10, 3, 4).Cast<double>();

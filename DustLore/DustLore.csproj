@@ -75,6 +75,9 @@
     <Compile Include="Layers\BatchNormalizeLayer.cs" />
     <Compile Include="Optimizers\Adam.cs" />
     <Compile Include="Layers\RnnLayer.cs" />
+    <Compile Include="Layers\PoolingLayer.cs" />
+    <Compile Include="Layers\MaxPooling2dLayer.cs" />
+    <Compile Include="Layers\AveragePooling2dLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="datasets\" />
