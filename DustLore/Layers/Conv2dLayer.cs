@@ -23,7 +23,7 @@ namespace DustLore.Layers
             this.padding = padding;
             this.strides = strides;
 
-            InputShape = new int[] { inputShape.Item1, inputShape.Item2, inputShape.Item3 };
+            SetInputShape(new int[] { inputShape.Item1, inputShape.Item2, inputShape.Item3 });
         }
 
         readonly int nfilters, strides;
@@ -77,15 +77,7 @@ namespace DustLore.Layers
             return output.Transpose(3, 0, 1, 2);
         }
 
-        public int[] GetOutputShape()
-        {
-            (int channels, int height, int width) = inputShape;
-            (var padH, var padW) = Images2Columns.DeterminePadding(filterShape, padding);
-            int outHeight = (height + padH.Item1 + padH.Item2 - filterShape.Item1) / strides + 1;
-            int outWidth = (width + padW.Item1 + padW.Item2 - filterShape.Item2) / strides + 1;
-            OutputShape = new int[] { nfilters, outHeight, outWidth };
-            return OutputShape;
-        }
+        public int[] GetOutputShape() => OutputShape;
 
         public void Initialize(IOptimizer optimizer)
         {
@@ -104,6 +96,11 @@ namespace DustLore.Layers
         {
             InputShape = shape.ToArray();
             inputShape = (shape[0], shape[1], shape[2]);
+            (int channels, int height, int width) = inputShape;
+            (var padH, var padW) = Images2Columns.DeterminePadding(filterShape, padding);
+            int outHeight = (height + padH.Item1 + padH.Item2 - filterShape.Item1) / strides + 1;
+            int outWidth = (width + padW.Item1 + padW.Item2 - filterShape.Item2) / strides + 1;
+            OutputShape = new int[] { nfilters, outHeight, outWidth };
         }
     }
 }
