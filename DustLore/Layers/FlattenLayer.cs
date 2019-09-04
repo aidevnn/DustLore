@@ -49,5 +49,10 @@ namespace DustLore.Layers
             int count = Utils.ArrMul(InputShape);
             OutputShape = new int[] { count };
         }
+
+        public void ImportWeights(string w, string b)
+        {
+
+        }
     }
 }

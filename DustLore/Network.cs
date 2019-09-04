@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using DustLore.Activations;
 using DustLore.Layers;
@@ -144,6 +145,21 @@ namespace DustLore
         {
             (double vloss, double vacc) = TestOnBatch(testX, testY);
             Console.WriteLine($"Test. loss:{vloss:0.000000} acc:{vacc:0.0000}");
+        }
+
+        public void ImportWeights(string filename)
+        {
+            var lstr = File.ReadAllLines(filename);
+            Queue<string> q = new Queue<string>(lstr);
+            foreach(var layer in layers)
+            {
+                if (layer is ActivationLayer layer0)
+                    continue;
+
+                var w = q.Dequeue();
+                var b = q.Dequeue();
+                layer.ImportWeights(w, b);
+            }
         }
     }
 }

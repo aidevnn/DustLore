@@ -102,5 +102,18 @@ namespace DustLore.Layers
             int outWidth = (width + padW.Item1 + padW.Item2 - filterShape.Item2) / strides + 1;
             OutputShape = new int[] { nfilters, outHeight, outWidth };
         }
+
+        public void ImportWeights(string w, string b)
+        {
+            var w0 = w.Split(';');
+            var dataW = w0[0].Split(',').Select(double.Parse).ToArray();
+            var shapeW = w0[1].Split(',').Select(int.Parse).Reverse().ToArray();
+            weight = new NDarray<double>(dataW, shapeW);
+
+            var b0 = b.Split(';');
+            var dataB = b0[0].Split(',').Select(double.Parse).ToArray();
+            var shapeB = b0[1].Split(',').Select(int.Parse).Reverse().ToArray();
+            biases = new NDarray<double>(dataB, shapeB).Reshape(nfilters, 1);
+        }
     }
 }

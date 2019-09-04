@@ -123,7 +123,7 @@ namespace NDarrayLib
             return nd0;
         }
 
-        public NDarray<U> T => Transpose();
+        //public NDarray<U> T => Transpose();
 
         public void ApplyFuncInplace(Func<U, U> func)
         {

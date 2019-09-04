@@ -19,5 +19,6 @@ namespace DustLore.Layers
         NDarray<double> Backward(NDarray<double> accumGrad);
         NDarray<double> Forward(NDarray<double> X, bool isTraining);
         void Initialize(IOptimizer optimizer);
+        void ImportWeights(string w, string b);
     }
 }

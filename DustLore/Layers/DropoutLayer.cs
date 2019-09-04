@@ -27,7 +27,7 @@ namespace DustLore.Layers
         {
             var accumGrad0 = new NDarray<double>(accumGrad);
             for (int i = 0; i < accumGrad0.Count; ++i)
-                accumGrad0.Data[i] *= mask[i % mask.Length];
+                accumGrad0.Data[i] *= mask[i % mask.Length] * (1.0 - p);
 
             return accumGrad0;
         }
@@ -39,8 +39,8 @@ namespace DustLore.Layers
             for (int i = 0; i < X0.Count; ++i)
             {
                 var v = mask[i] = Utils.Random.NextDouble() > p ? 1.0 : 0.0;
-                v = isTraining ? v : 1 - p;
-                X0.Data[i] *= v;
+                v = isTraining ? v : 1;
+                X0.Data[i] *= v / (1.0 - p);
             }
 
             return X0;
@@ -54,6 +54,11 @@ namespace DustLore.Layers
         {
             InputShape = shape.ToArray();
             OutputShape = shape.ToArray();
+        }
+
+        public void ImportWeights(string w, string b)
+        {
+
         }
     }
 }

@@ -49,6 +49,11 @@ namespace DustLore.Layers
             InputShape = shape.ToArray();
             OutputShape = shape.ToArray();
         }
+
+        public void ImportWeights(string w, string b)
+        {
+
+        }
     }
 
     public class SigmoidLayer : ActivationLayer

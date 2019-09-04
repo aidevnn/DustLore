@@ -70,5 +70,18 @@ namespace DustLore.Layers
         {
             InputShape = shape.ToArray();
         }
+
+        public void ImportWeights(string w, string b)
+        {
+            var w0 = w.Split(';');
+            var dataW = w0[0].Split(',').Select(double.Parse).ToArray();
+            var shapeW = w0[1].Split(',').Select(int.Parse).ToArray();
+            weight = new NDarray<double>(dataW, shapeW);
+
+            var b0 = b.Split(';');
+            var dataB = b0[0].Split(',').Select(double.Parse).ToArray();
+            var shapeB = b0[1].Split(',').Select(int.Parse).ToArray();
+            biases = new NDarray<double>(dataB, shapeB).Reshape(1, -1);
+        }
     }
 }

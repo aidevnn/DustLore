@@ -5,24 +5,97 @@ namespace DustLore.Layers
 {
     public class AveragePooling2dLayer : PoolingLayer, ILayer
     {
-        public AveragePooling2dLayer((int, int) poolShape, int strides = 1, string padding = "valid") 
-            : base(poolShape, strides, padding) { }
+        public AveragePooling2dLayer((int, int) poolShape) : base(poolShape) { }
 
-        public AveragePooling2dLayer((int, int) poolShape, (int, int, int) inputShape, int strides = 1, string padding = "valid")
-            : base(poolShape, inputShape, strides, padding) { }
-
-        public string Name => "AveragePooling2dLayer";
+        public string Name => "AvgPooling2dLayer";
 
         public int Params => 0;
 
+        NDarray<double> argmax;
+
         public override NDarray<double> PoolBackward(NDarray<double> X)
         {
-            throw new NotImplementedException();
+            int batchSize = lastShape[0], channels = lastShape[1], height = lastShape[2], width = lastShape[3];
+            int outHeight = OutputShape[1], outWidth = OutputShape[2];
+            var nd = new NDarray<double>(batchSize, channels, height, width);
+            int s00 = channels * height * width, s01 = height * width, s02 = width;
+            int s10 = channels * outHeight * outWidth, s11 = outHeight * outWidth, s12 = outWidth;
+
+            int remH = height % poolShape.Item1;
+            int remW = width % poolShape.Item2;
+
+            for (int b = 0; b < batchSize; ++b)
+            {
+                for (int c = 0; c < channels; ++c)
+                {
+                    for (int h = 0; h < height; ++h)
+                    {
+                        for (int w = 0; w < width; ++w)
+                        {
+                            int idx0 = b * s00 + c * s01 + h * s02 + w;
+                            int h0 = (h + remH) / poolShape.Item1;
+                            int w0 = (w + remW) / poolShape.Item2;
+                            int idx1 = b * s10 + c * s11 + h0 * s12 + w0;
+                            nd.Data[idx0] = X.Data[idx1];
+                        }
+                    }
+                }
+            }
+
+            nd = ND.MulNDarray(nd, argmax);
+            return nd;
         }
 
         public override NDarray<double> PoolForward(NDarray<double> X)
         {
-            throw new NotImplementedException();
+            int batchSize = X.Shape[0], channels = X.Shape[1], height = X.Shape[2], width = X.Shape[3];
+            int outHeight = OutputShape[1], outWidth = OutputShape[2];
+            var nd = new NDarray<double>(batchSize, channels, outHeight, outWidth);
+            argmax = new NDarray<double>(batchSize, channels, height, width);
+            int s00 = channels * height * width, s01 = height * width, s02 = width;
+            int s10 = channels * outHeight * outWidth, s11 = outHeight * outWidth, s12 = outWidth;
+
+            int remH = height % poolShape.Item1;
+            int remW = width % poolShape.Item2;
+            double dim = poolShape.Item1 * poolShape.Item2;
+
+            for (int b = 0; b < batchSize; ++b)
+            {
+                for (int c = 0; c < channels; ++c)
+                {
+                    for (int h = 0; h < outHeight; ++h)
+                    {
+                        for (int w = 0; w < outWidth; ++w)
+                        {
+                            int idx0 = b * s10 + c * s11 + h * s12 + w;
+                            double sum = 0;
+                            double max = double.MinValue;
+                            int idxMax = 0;
+                            int offsetH = h == 0 ? 0 : remH;
+                            int offsetW = w == 0 ? 0 : remW;
+                            for (int i = 0; i < poolShape.Item1; ++i)
+                            {
+                                for (int j = 0; j < poolShape.Item2; ++j)
+                                {
+                                    int idx1 = b * s00 + c * s01 + (h * poolShape.Item1 + i + offsetH) * s02 + (w * poolShape.Item2 + j + offsetW);
+                                    var v = X.Data[idx1];
+                                    if (v > max)
+                                    {
+                                        max = v;
+                                        idxMax = idx1;
+                                    }
+                                    sum += v;
+                                }
+                            }
+
+                            argmax.Data[idxMax] = 1.0;
+                            nd.Data[idx0] = sum / dim;
+                        }
+                    }
+                }
+            }
+
+            return nd;
         }
     }
 }

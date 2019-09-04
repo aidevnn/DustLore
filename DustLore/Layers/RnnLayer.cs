@@ -123,6 +123,11 @@ namespace DustLore.Layers
             OutputShape = shape.ToArray();
         }
 
+        public void ImportWeights(string w, string b)
+        {
+
+        }
+
         // GetSubArray a[:, t]; a.Shape length must be 3
         public static NDarray<double> GetArrAt(NDarray<double> a, int t)
         {

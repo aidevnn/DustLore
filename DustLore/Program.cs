@@ -252,7 +252,7 @@ namespace DustLore
             if (summary)
                 net.Summary();
 
-            net.Fit(ndX, ndY, epochs, displayEpochs);
+            net.Fit(ndX, ndY, epochs, displayEpochs: displayEpochs);
 
             if (summary)
             {
@@ -278,7 +278,7 @@ namespace DustLore
             if (summary)
                 net.Summary();
 
-            net.Fit(trainX, trainY, epochs, displayEpochs, batchsize);
+            net.Fit(trainX, trainY, epochs, batchSize: batchsize, displayEpochs: displayEpochs);
             net.Test(testX, testY);
 
             Console.WriteLine();
@@ -336,6 +336,37 @@ namespace DustLore
             net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 64, displayEpochs: displayEpochs);
         }
 
+        static void TestDigitsCNN2(int epochs = 5, int displayEpochs = 1)
+        {
+            ND.Backend = Backend.MKL;
+            Console.WriteLine($"Hello World, CNN on Digits Dataset. Backend {ND.Backend}");
+
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.6, normalize: true);
+            trainX.ReshapeInplace(-1, 1, 8, 8);
+            testX.ReshapeInplace(-1, 1, 8, 8);
+
+            var net = new Network(new Adam(), new CrossEntropyLoss(), new ArgmaxAccuracy());
+
+            net.AddLayer(new Conv2dLayer(nfilters: 16, filterShape: (3, 3), inputShape: (1, 8, 8), padding: "same", strides: 1));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new Conv2dLayer(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new MaxPooling2dLayer((2, 2)));
+            net.AddLayer(new DropoutLayer(0.25));
+            net.AddLayer(new FlattenLayer());
+            net.AddLayer(new DenseLayer(256));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new DropoutLayer(0.5));
+            net.AddLayer(new DenseLayer(32));
+            net.AddLayer(new ReluLayer());
+            net.AddLayer(new DenseLayer(10));
+            net.AddLayer(new SoftmaxLayer());
+
+            net.Summary(true);
+
+            net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 64, displayEpochs: displayEpochs);
+        }
+
         static void TestRNN()
         {
             ND.Backend = Backend.MKL;
@@ -374,24 +405,22 @@ namespace DustLore
             //TestIris(true, 50, 5);
             //TestDigits(true, 50, 5);
 
-            //for (int k = 0; k < 5; ++k) TestDigits();
+            //ND.Backend = Backend.MKL;
+            //for (int k = 0; k < 5; ++k) TestIris();
 
-            TestDigitsCNN(50, 1);
+            //TestDigitsCNN(50, 1);
+            TestDigitsCNN2(50, 1);
 
             //TestRNN();
 
-            //var a = ND.Uniform(0, 10, 3, 3, 4).Cast<double>();
-            //var b = ND.Uniform(0, 10, 3, 4).Cast<double>();
-            //Console.WriteLine(a);
-            //Console.WriteLine(b);
-            //Console.WriteLine($"a={a}");
-            //Console.WriteLine($"b={b}");
-            //Console.WriteLine("a[:,-1]=b");
-            //RnnLayer.SetArrAt(-1, a, b);
-            //Console.WriteLine("a");
-            //Console.WriteLine(a);
-
-
+            //var mp = new MaxPooling2dLayer((2, 2));
+            //mp.SetInputShape(new int[] { 1, 8, 8 });
+            //var imgs = ND.Uniform(0, 10, 1, 1, 8, 8).Cast<double>();
+            //var imgs0 = mp.Forward(imgs, true);
+            //var imgs1 = mp.Backward(imgs0);
+            //Console.WriteLine(imgs);
+            //Console.WriteLine(imgs0);
+            //Console.WriteLine(imgs1);
         }
     }
 }
