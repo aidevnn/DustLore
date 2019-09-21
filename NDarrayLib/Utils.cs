@@ -141,9 +141,9 @@ namespace NDarrayLib
             int sz1 = ArrMul(shape1);
 
             if (isLeftOne0 && isRightOne0 && sz0 != 1 || nb0 > 1) 
-                throw new ArgumentException($"0One must be aligned only at one border of shape ({shape0.Glue()})");
+                throw new ArgumentException($"One must be aligned only at one border of shape0 ({shape0.Glue()})");
             if (isLeftOne1 && isRightOne1 && sz1 != 1 || nb1 > 1) 
-                throw new ArgumentException($"1One must be aligned only at one border of shape ({shape1.Glue()})");
+                throw new ArgumentException($"One must be aligned only at one border of shape1 ({shape1.Glue()})");
 
             int info0 = isLeftOne0 ? -1 : isRightOne0 ? 1 : 0;
             int info1 = isLeftOne1 ? -1 : isRightOne1 ? 1 : 0;
