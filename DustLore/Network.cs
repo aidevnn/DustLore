@@ -73,23 +73,40 @@ namespace DustLore
             return (vloss, vacc);
         }
 
-        public void Summary(bool shape = false)
+        public void Summary()
         {
             Console.WriteLine("Summary");
             Console.WriteLine($"Network: {optimizer.Name} / {loss.Name} / {accuracy.Name}");
-            Console.WriteLine($"Input  Shape:({layers[0].InputShape.Glue()})");
+            Console.WriteLine();
+
+            string inputLayerShape = $"({layers[0].InputShape.Glue()})";
+
+            int nameSize = layers.Max(l => l.Name.Length + 4);
+            int paramsSize = layers.Max(l => l.Params.ToString().Length + 4);
+            int outputSize = layers.Max(l => l.OutputShape.Glue().Length + 4);
+            nameSize = Math.Max(nameSize, "InputLayer".Length + 4);
+            paramsSize = Math.Max(paramsSize, "Parameters".Length + 4);
+            outputSize = Math.Max(Math.Max(outputSize, "Output".Length + 4), inputLayerShape.Length + 4);
+
+            string fmtHead = $"| {{0,{-nameSize}}}| {{1,{-paramsSize}}}| {{2,{-outputSize}}}|";
+            string fmtRow = $"| {{0,{-nameSize}}}|{{1,{paramsSize}}} |{{2,{outputSize}}} |";
+            string head = string.Format(fmtHead, 0, 0, 0);
+            string sep = Enumerable.Repeat('=', head.Length).Glue("");
+
             int tot = 0;
+            Console.WriteLine(sep);
+            Console.WriteLine(fmtHead, "Layer", "Parameters", "Output");
+            Console.WriteLine(sep);
+            Console.WriteLine(fmtRow, "InputLayer", 0, inputLayerShape);
             foreach (var layer in layers)
             {
-                string shin = shape ? $"({layer.InputShape.Glue()})" : $"{Utils.ArrMul(layer.InputShape),5}";
-                shin = shape ? $"{shin,10}" : shin;
-                string shout = shape ? $"({layer.OutputShape.Glue()})" : $"{Utils.ArrMul(layer.OutputShape),5}";
-                shout = shape ? $"{shout,10}" : shout;
-                Console.WriteLine($"Layer: {layer.Name,-20} Parameters: {layer.Params,7} Nodes[In:{shin} -> Out:{shout}]");
+                string shout = $"({layer.OutputShape.Glue()})";
+                Console.WriteLine(fmtRow, layer.Name, layer.Params, shout);
                 tot += layer.Params;
             }
 
-            Console.WriteLine($"Output Shape:({layers.Last().OutputShape.Glue()})");
+            Console.WriteLine(sep);
+            Console.WriteLine();
             Console.WriteLine($"Total Parameters:{tot}");
             Console.WriteLine();
         }

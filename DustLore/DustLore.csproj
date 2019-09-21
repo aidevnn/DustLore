@@ -78,6 +78,8 @@
     <Compile Include="Layers\PoolingLayer.cs" />
     <Compile Include="Layers\MaxPooling2dLayer.cs" />
     <Compile Include="Layers\AveragePooling2dLayer.cs" />
+    <Compile Include="Layers\MaxPool2dLayer.cs" />
+    <Compile Include="Layers\LSTMLayer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="datasets\" />

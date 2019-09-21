@@ -42,7 +42,7 @@ namespace DustLore.Layers
                 }
             }
 
-            nd = ND.MulNDarray(nd, argmax);
+            //nd = ND.MulNDarray(nd, argmax);
             return nd;
         }
 
@@ -85,7 +85,17 @@ namespace DustLore.Layers
                                 }
                             }
 
-                            argmax.Data[idxMax] = 1.0;
+                            for (int i = 0; i < poolShape.Item1; ++i)
+                            {
+                                for (int j = 0; j < poolShape.Item2; ++j)
+                                {
+                                    int idx1 = b * s00 + c * s01 + (h * poolShape.Item1 + i + offsetH) * s02 + (w * poolShape.Item2 + j + offsetW);
+                                    if (Math.Abs(max - X.Data[idx1]) < 1e-6)
+                                        argmax.Data[idx1] = 1.0;
+                                }
+                            }
+
+                            //argmax.Data[idxMax] = 1.0;
                             nd.Data[idx0] = max;
                         }
                     }

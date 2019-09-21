@@ -64,6 +64,7 @@ namespace DustLore.Layers
 
         public NDarray<double> Forward(NDarray<double> X, bool isTraining)
         {
+            IsTraining = isTraining;
             int batchSize = X.Shape[0], channels = X.Shape[1], height = X.Shape[2], width = X.Shape[3];
             lastInputShape = (batchSize, channels, height, width);
             xCol = Images2Columns.Images2Columns2Dfast(X, filterShape, strides, padding);

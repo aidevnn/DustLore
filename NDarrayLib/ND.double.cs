@@ -72,7 +72,7 @@ namespace NDarrayLib
             {
                 int ia = (i / diva) % moda;
                 int ib = (i / divb) % modb;
-                r.Data[i] = ca * a.Data[ia] + cb * b.Data[ib];
+                r.Data[i] = (ca * a.Data[ia]) / (cb * b.Data[ib]);
             }
 
             return r;
@@ -209,17 +209,17 @@ namespace NDarrayLib
 
             int[] nshape0 = nDarray.Shape.ToArray();
             nshape0[axis] = 1;
-            int[] indices = new int[nDarray.Shape.Length];
-            int[] strides = Utils.Shape2Strides(nDarray.Shape);
+            int m = Utils.ArrMul(nshape0, axis);
+            int n = nDarray.Shape[axis];
+
             for (int idx0 = 0; idx0 < nd.Count; ++idx0)
             {
-                Utils.Int2ArrayIndex(idx0, nshape0, indices);
+                int start = (idx0 / m) * m * n + (idx0 % m);
                 int bIdx = 0;
                 double bVal = double.MinValue;
-                for (int k = 0; k < nDarray.Shape[axis]; ++k)
+                for (int k = 0; k < n; ++k)
                 {
-                    indices[axis] = k;
-                    int idx1 = Utils.Array2IntIndex(indices, nDarray.Shape, strides);
+                    int idx1 = start + k * m;
                     var v = nDarray.Data[idx1];
                     if (v > bVal)
                     {

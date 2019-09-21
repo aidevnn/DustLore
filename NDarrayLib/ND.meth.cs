@@ -47,5 +47,34 @@ namespace NDarrayLib
             return batch;
         }
 
+        public static NDarray<U> RowStack<U>(NDarray<U> a, NDarray<U> b)
+        {
+            var shape0 = a.Shape;
+            var shape1 = b.Shape;
+            if (shape0.Length != shape1.Length) throw new Exception();
+
+            for (int k = 1; k < shape0.Length; ++k)
+                if (shape0[k] != shape1[k]) throw new Exception();
+
+            var shape = shape0.ToArray();
+            shape[0] += shape1[0];
+
+            var nd = new NDarray<U>(shape: shape);
+            a.Data.CopyTo(nd.Data, 0);
+            b.Data.CopyTo(nd.Data, a.Count);
+
+            return nd;
+        }
+
+        public static NDarray<U> Subarray<U>(NDarray<U> a, int idx)
+        {
+            int dim0 = a.Shape[0];
+            if (idx >= dim0) throw new Exception();
+            int nb = a.Count / dim0 * idx;
+            var data = a.Data.Take(nb).ToArray();
+            var shape = a.Shape.ToArray();
+            shape[0] = idx;
+            return new NDarray<U>(data, shape);
+        }
     }
 }

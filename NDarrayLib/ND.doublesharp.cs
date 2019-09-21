@@ -27,7 +27,7 @@ namespace NDarrayLib
                     for (int k = 0; k < ha; ++k)
                         sum += a.Data[i * ha + k] * b.Data[k * hb + j];
 
-                    nd.Data[i * hb + j] = sum;
+                    nd.Data[i * hb + j] += sum;
                 }
             }
 
@@ -57,7 +57,7 @@ namespace NDarrayLib
                     for (int k = 0; k < ha; ++k)
                         sum += a.Data[i * ha + k] * b.Data[j * ha + k];
 
-                    nd.Data[i * wb + j] = sum;
+                    nd.Data[i * wb + j] += sum;
                 }
             }
 
@@ -87,7 +87,7 @@ namespace NDarrayLib
                     for (int k = 0; k < wa; ++k)
                         sum += a.Data[k * ha + i] * b.Data[k * hb + j];
 
-                    nd.Data[i * hb + j] = sum;
+                    nd.Data[i * hb + j] += sum;
                 }
             }
 
@@ -117,7 +117,7 @@ namespace NDarrayLib
                     for (int k = 0; k < wa; ++k)
                         sum += a.Data[k * ha + i] * b.Data[j * wa + k];
 
-                    nd.Data[i * wb + j] = sum;
+                    nd.Data[i * wb + j] += sum;
                 }
             }
 

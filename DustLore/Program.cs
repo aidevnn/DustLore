@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using DustLore.Layers;
@@ -232,6 +233,72 @@ namespace DustLore
             Console.WriteLine(b.Backward(P));
         }
 
+        static void Test9()
+        {
+            var mp = new MaxPool2dLayer((2, 2));
+            mp.SetInputShape(new int[] { 1, 8, 8 });
+            var imgs = ND.Uniform(0, 10, 1, 1, 8, 8).Cast<double>();
+            var imgs0 = mp.Forward(imgs, true);
+            var imgs1 = mp.Backward(imgs0);
+            Console.WriteLine(imgs);
+            Console.WriteLine(imgs0);
+            Console.WriteLine(imgs1);
+
+            //var imgs = ND.Uniform(0, 10, 1, 1, 8, 8).Cast<double>();
+            var xcols = Images2Columns.Images2Columns2Dfast(imgs, (2, 2), 2, "valid");
+            var mx = ND.MaxAxis(xcols, 0).Reshape(4, 4, 1, 1).Transpose(2, 3, 0, 1);
+            Console.WriteLine(imgs);
+            Console.WriteLine(mx);
+        }
+
+        static void Test10()
+        {
+            string fmt = "{0,3}";
+            int[] x = { 3, 5, 2, 4 };
+            for (int axis = 0; axis < x.Length; ++axis)
+            {
+
+                int[] y = Utils.PrepareAxisOps(x, axis, true);
+                var ind = new int[y.Length];
+                int nb = Utils.ArrMul(y);
+
+                var st = Utils.Shape2Strides(x);
+                int m = Utils.ArrMul(x);
+                var n = st[axis];
+                int o = x[axis];
+
+                Console.WriteLine($"### Shape:({x.Glue()}) Axis:{axis} Step:{n}");
+                for (int i = 0; i < nb; ++i)
+                {
+                    Utils.Int2ArrayIndex(i, y, ind);
+                    List<int> lt = new List<int>();
+                    for (int j = 0; j < o; ++j)
+                    {
+                        ind[axis] = j;
+                        int i1 = Utils.Array2IntIndex(ind, x, st);
+                        lt.Add(i1);
+                    }
+
+                    int k = (i / n) * n * o + (i % n);
+                    Console.WriteLine($"{i,3} => ({k,3}) => ({lt.Glue(fmt: fmt)})");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void Test11(params int[] shape)
+        {
+            var x = ND.Uniform(0, 10, shape).Cast<double>();
+            Console.WriteLine($"x={x}");
+            for (int axis = 0; axis < shape.Length; ++axis)
+            {
+                var m = ND.ArgmaxAxis(x, axis);
+                Console.WriteLine($"np.argmax(x, axis={axis})");
+                Console.WriteLine(m);
+            }
+        }
+
         static void TestXor(bool summary = false, int epochs = 50, int displayEpochs = 25)
         {
             Console.WriteLine("Hello World, MLP on Xor Dataset.");
@@ -331,7 +398,7 @@ namespace DustLore
             net.AddLayer(new DenseLayer(10));
             net.AddLayer(new SoftmaxLayer());
 
-            net.Summary(true);
+            net.Summary();
 
             net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 64, displayEpochs: displayEpochs);
         }
@@ -341,7 +408,7 @@ namespace DustLore
             ND.Backend = Backend.MKL;
             Console.WriteLine($"Hello World, CNN on Digits Dataset. Backend {ND.Backend}");
 
-            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.6, normalize: true);
+            (var trainX, var trainY, var testX, var testY) = ImportDataset.DigitsDataset(ratio: 0.6, normalize: false);
             trainX.ReshapeInplace(-1, 1, 8, 8);
             testX.ReshapeInplace(-1, 1, 8, 8);
 
@@ -352,17 +419,18 @@ namespace DustLore
             net.AddLayer(new Conv2dLayer(nfilters: 32, filterShape: (3, 3), padding: "same", strides: 1));
             net.AddLayer(new ReluLayer());
             net.AddLayer(new MaxPooling2dLayer((2, 2)));
+            net.AddLayer(new BatchNormalizeLayer());
             net.AddLayer(new DropoutLayer(0.25));
             net.AddLayer(new FlattenLayer());
             net.AddLayer(new DenseLayer(256));
             net.AddLayer(new ReluLayer());
-            net.AddLayer(new DropoutLayer(0.5));
+            net.AddLayer(new DropoutLayer(0.4));
             net.AddLayer(new DenseLayer(32));
             net.AddLayer(new ReluLayer());
             net.AddLayer(new DenseLayer(10));
             net.AddLayer(new SoftmaxLayer());
 
-            net.Summary(true);
+            net.Summary();
 
             net.Fit(trainX, trainY, testX, testY, epochs: epochs, batchSize: 64, displayEpochs: displayEpochs);
         }
@@ -378,7 +446,7 @@ namespace DustLore
             net.AddLayer(new RnnLayer(nUnits: 10, inputShape: (10, 61)));
             net.AddLayer(new SoftmaxLayer());
 
-            net.Summary(true);
+            net.Summary();
 
             net.Fit(trainX, trainY, testX, testY, 500, 20, 50);
 
@@ -402,25 +470,17 @@ namespace DustLore
         public static void Main(string[] args)
         {
             //TestXor(true, 500, 50);
-            //TestIris(true, 50, 5);
+            TestIris(true, 50, 5);
             //TestDigits(true, 50, 5);
 
             //ND.Backend = Backend.MKL;
             //for (int k = 0; k < 5; ++k) TestIris();
 
             //TestDigitsCNN(50, 1);
-            TestDigitsCNN2(50, 1);
+            //TestDigitsCNN2(50, 1);
 
             //TestRNN();
 
-            //var mp = new MaxPooling2dLayer((2, 2));
-            //mp.SetInputShape(new int[] { 1, 8, 8 });
-            //var imgs = ND.Uniform(0, 10, 1, 1, 8, 8).Cast<double>();
-            //var imgs0 = mp.Forward(imgs, true);
-            //var imgs1 = mp.Backward(imgs0);
-            //Console.WriteLine(imgs);
-            //Console.WriteLine(imgs0);
-            //Console.WriteLine(imgs1);
         }
     }
 }
